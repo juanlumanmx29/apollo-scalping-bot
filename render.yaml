@@ -6,5 +6,3 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     rootDir: backend
-    # Environment variables should be set in Render dashboard, not in code
-    # See DEPLOYMENT.md for required environment variables
