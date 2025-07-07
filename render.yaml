@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: apollo-scalping-bot-backend
+    env: python
+    region: oregon
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FIREBASE_PROJECT_ID
+        value: apollo-7c7f6
+      - key: FIREBASE_API_KEY
+        value: AIzaSyDGXADaGQX14BnXl8lGs4kLEPRGXnYYlQg
+      - key: FERNET_KEY
+        value: n5Rl5kkYfyCTv-2wvt5YnO0prRvzqcpAdvZkwdpNEaE=
+      - key: BINANCE_API_KEY
+        value: 66Jk1XMTUwXVHBnMuszBHClBGnIKw1hK9euECOXRMX8Ws35kI2THnHOTjUPuHQL9
+      - key: BINANCE_API_SECRET
+        value: r1Zece1L4qiT0ngE5nHoLON0OsmHgpictoj0JFdIifD1jjW5MCllkH7iRsaSQtU9
+    rootDir: backend
