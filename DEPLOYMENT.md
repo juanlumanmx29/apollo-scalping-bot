@@ -24,12 +24,21 @@
 ### 1.2 Set Environment Variables in Render
 In your Render service settings, add these environment variables:
 
+⚠️ **SECURITY NOTICE**: Never commit secrets to code. Set these in Render dashboard only.
+
 ```env
-FIREBASE_PROJECT_ID=apollo-7c7f6
-FIREBASE_API_KEY=AIzaSyDGXADaGQX14BnXl8lGs4kLEPRGXnYYlQg
-FERNET_KEY=n5Rl5kkYfyCTv-2wvt5YnO0prRvzqcpAdvZkwdpNEaE=
-BINANCE_API_KEY=66Jk1XMTUwXVHBnMuszBHClBGnIKw1hK9euECOXRMX8Ws35kI2THnHOTjUPuHQL9
-BINANCE_API_SECRET=r1Zece1L4qiT0ngE5nHoLON0OsmHgpictoj0JFdIifD1jjW5MCllkH7iRsaSQtU9
+FIREBASE_PROJECT_ID=your-firebase-project-id
+FIREBASE_API_KEY=your-firebase-api-key
+FERNET_KEY=your-generated-fernet-key
+BINANCE_API_KEY=your-binance-api-key
+BINANCE_API_SECRET=your-binance-api-secret
+```
+
+**To generate a new FERNET_KEY:**
+```python
+import base64
+import os
+print(base64.urlsafe_b64encode(os.urandom(32)).decode())
 ```
 
 ### 1.3 Deploy
