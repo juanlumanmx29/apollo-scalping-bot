@@ -8,7 +8,7 @@ function App() {
   const [logs, setLogs] = useState([])
   const { user, token, loading, signIn, signOut } = useAuth()
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:8000'
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://apollo-scalping-bot-backend.onrender.com'
 
   useEffect(() => {
     if (user && token) {
