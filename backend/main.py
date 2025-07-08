@@ -46,7 +46,9 @@ allowed_origins = [
     "http://127.0.0.1:5173",
     "https://apollo.irondevz.com",  # Production domain
     "https://apollo-scalping-bot.netlify.app",  # Netlify fallback
-    "https://your-frontend-domain.vercel.app"  # Vercel fallback
+    "https://your-frontend-domain.vercel.app",  # Vercel fallback
+    "https://*.railway.app",  # Railway backend domain
+    "https://*.up.railway.app"  # Railway alternative domain
 ]
 
 # Add production frontend domain if environment variable is set
