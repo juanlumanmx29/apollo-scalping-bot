@@ -106,7 +106,11 @@ def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(se
 
 @app.get("/")
 def root():
-    return {"message": "API de Apollo Scalping Bot funcionando 🚀"}
+    return {"message": "API de Apollo Scalping Bot funcionando 🚀", "status": "healthy"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "service": "apollo-backend"}
 
 @app.get("/protected")
 def protected_route(user=Depends(verify_firebase_token)):
@@ -154,7 +158,6 @@ def test_cors():
 def test_binance():
     """Test Binance connectivity from server"""
     try:
-        import requests
         response = requests.get("https://api.binance.com/api/v3/ping", timeout=10)
         if response.status_code == 200:
             return {"status": "Binance API accessible", "response": response.json()}
