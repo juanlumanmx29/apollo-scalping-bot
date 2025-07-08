@@ -35,11 +35,15 @@ load_dotenv()
 
 app = FastAPI(title="Apollo Scalping Bot API")
 
-if __name__ == "__main__":
+def start_server():
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
-    logger.info(f"Starting server on port {port}")
+    logger.info(f"🚀 Starting Apollo Scalping Bot on port {port}")
+    logger.info(f"📍 Host: 0.0.0.0:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
+
+if __name__ == "__main__":
+    start_server()
 
 @app.on_event("startup")
 async def startup_event():

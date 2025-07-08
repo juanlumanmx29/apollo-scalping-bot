@@ -1,1 +1,2 @@
-web: python main.py
+web: python run.py
+release: echo "Apollo Scalping Bot deployment"
