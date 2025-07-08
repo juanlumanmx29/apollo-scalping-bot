@@ -213,9 +213,19 @@ async def paper_trading_loop(user_id, model, threshold=0.73):
     entry_price = 0
     entry_time = None
     capital = 10000
-    commission_rate = 0.001
-    profit_target = 0.015
-    stop_loss = 0.008
+    
+    # ORIGINAL APOLLO STRATEGY PARAMETERS
+    commission_rate = 0.00075  # Binance 0.075% per transaction
+    minimum_sell_percentage = 0.0016  # 0.16% minimum profit to cover commissions
+    stop_loss_percentage = 0.01  # 1% stop loss
+    trailing_stop_activation = 0.0016  # Trailing stop activates at 0.16% profit
+    trailing_stop_distance = 0.002  # 0.2% below max price
+    
+    # Trailing stop variables
+    trailing_stop_active = False
+    max_price_since_entry = 0
+    minimum_sell_price = 0
+    
     total_trades = 0
     winning_trades = 0
     try:
@@ -229,67 +239,105 @@ async def paper_trading_loop(user_id, model, threshold=0.73):
                 paper_trading_logs[user_id] = logs[:100]
                 continue
             signal = 1 if proba >= threshold else 0
-            logs.insert(0, f"[{now}] Precio: ${current_price:.2f} | Prob: {proba:.3f} | Señal: {signal}")
-            # Simular lógica de trading
+            
+            # ORIGINAL APOLLO TRADING LOGIC
             if in_position:
+                # Update max price for trailing stop
+                if current_price > max_price_since_entry:
+                    max_price_since_entry = current_price
+                
                 pnl_pct = (current_price - entry_price) / entry_price
-                if pnl_pct >= profit_target:
-                    # Vender por take profit
+                
+                # Activate trailing stop when price exceeds 0.16% profit
+                if not trailing_stop_active and pnl_pct >= trailing_stop_activation:
+                    trailing_stop_active = True
+                    logs.insert(0, f"[{now}] 🔄 TRAILING STOP ACTIVADO | Max: ${max_price_since_entry:.2f}")
+                
+                # Calculate trailing stop price (0.2% below max)
+                trailing_stop_price = max_price_since_entry * (1 - trailing_stop_distance)
+                
+                # Calculate stop loss price (1% below entry)
+                stop_loss_price = entry_price * (1 - stop_loss_percentage)
+                
+                should_sell = False
+                sell_reason = ""
+                
+                # Check exit conditions in order of priority:
+                
+                # 1. Stop Loss (1% below entry price)
+                if current_price <= stop_loss_price:
+                    should_sell = True
+                    sell_reason = "STOP_LOSS"
+                
+                # 2. Trailing Stop (if active and price below trailing stop, but above minimum sell)
+                elif trailing_stop_active and current_price <= trailing_stop_price and current_price >= minimum_sell_price:
+                    should_sell = True
+                    sell_reason = "TRAILING_STOP"
+                
+                if should_sell:
+                    # Execute sell
                     in_position = False
-                    pnl_amount = capital * pnl_pct
-                    exit_value = capital * (1 + pnl_pct)
-                    commission = exit_value * commission_rate
-                    capital += pnl_amount - commission
+                    
+                    # Calculate P&L with commissions
+                    sell_commission = current_price * commission_rate
+                    buy_commission = entry_price * commission_rate
+                    total_commission = buy_commission + sell_commission
+                    
+                    net_profit = current_price - entry_price - total_commission
+                    pnl_pct = net_profit / entry_price
+                    
+                    capital += net_profit
                     total_trades += 1
-                    if pnl_amount > 0:
+                    
+                    if net_profit > 0:
                         winning_trades += 1
+                    
                     trades.append({
                         'entry_time': entry_time,
                         'entry_price': entry_price,
                         'exit_price': current_price,
                         'pnl_pct': pnl_pct * 100,
-                        'pnl_amount': pnl_amount,
-                        'commission': commission,
+                        'net_profit': net_profit,
+                        'total_commission': total_commission,
                         'capital': capital,
-                        'reason': 'PROFIT_TARGET',
-                        'timestamp': datetime.now()
+                        'reason': sell_reason,
+                        'timestamp': datetime.now(),
+                        'max_price': max_price_since_entry if trailing_stop_active else None
                     })
-                    logs.insert(0, f"[{now}] 🔴 VENTA (TP): ${current_price:.2f} | P&L: {pnl_pct*100:.2f}% | Capital: ${capital:.2f}")
+                    
+                    logs.insert(0, f"[{now}] 🔴 VENTA ({sell_reason}): ${current_price:.2f} | P&L: {pnl_pct*100:.2f}% | Capital: ${capital:.2f}")
+                    
+                    # Reset variables
                     entry_price = 0
                     entry_time = None
-                elif pnl_pct <= -stop_loss:
-                    # Vender por stop loss
-                    in_position = False
-                    pnl_amount = capital * pnl_pct
-                    exit_value = capital * (1 + pnl_pct)
-                    commission = exit_value * commission_rate
-                    capital += pnl_amount - commission
-                    total_trades += 1
-                    trades.append({
-                        'entry_time': entry_time,
-                        'entry_price': entry_price,
-                        'exit_price': current_price,
-                        'pnl_pct': pnl_pct * 100,
-                        'pnl_amount': pnl_amount,
-                        'commission': commission,
-                        'capital': capital,
-                        'reason': 'STOP_LOSS',
-                        'timestamp': datetime.now()
-                    })
-                    logs.insert(0, f"[{now}] 🔴 VENTA (SL): ${current_price:.2f} | P&L: {pnl_pct*100:.2f}% | Capital: ${capital:.2f}")
-                    entry_price = 0
-                    entry_time = None
+                    trailing_stop_active = False
+                    max_price_since_entry = 0
+                    minimum_sell_price = 0
                 else:
-                    # Mantener posición
-                    pass
+                    # Position monitoring log
+                    status = f"TS: {'✅' if trailing_stop_active else '❌'}"
+                    if trailing_stop_active:
+                        status += f" | TSP: ${trailing_stop_price:.2f}"
+                    logs.insert(0, f"[{now}] 📊 EN POSICIÓN: ${current_price:.2f} | P&L: {pnl_pct*100:.2f}% | {status}")
+                    
             elif signal == 1 and not in_position:
-                # Comprar
+                # BUY SIGNAL - Enter position
                 in_position = True
                 entry_price = current_price
                 entry_time = datetime.now()
-                commission = capital * commission_rate
-                capital -= commission
-                logs.insert(0, f"[{now}] 🟢 COMPRA: ${current_price:.2f} | Capital: ${capital:.2f}")
+                
+                # Calculate minimum sell price (0.16% above entry to cover commissions)
+                minimum_sell_price = entry_price * (1 + minimum_sell_percentage)
+                max_price_since_entry = current_price
+                
+                # Deduct buy commission
+                buy_commission = entry_price * commission_rate
+                capital -= buy_commission
+                
+                logs.insert(0, f"[{now}] 🟢 COMPRA: ${current_price:.2f} | Min Venta: ${minimum_sell_price:.2f} | Capital: ${capital:.2f}")
+            else:
+                # No position, monitoring
+                logs.insert(0, f"[{now}] 📈 MONITOREO: ${current_price:.2f} | Prob: {proba:.3f} | Señal: {'🚀' if signal else '⏳'}")
             # Limitar logs y trades
             paper_trading_logs[user_id] = logs[:100]
             paper_trading_trades[user_id] = trades[-100:]
@@ -297,6 +345,14 @@ async def paper_trading_loop(user_id, model, threshold=0.73):
     except Exception as e:
         logs.insert(0, f"[ERROR] {str(e)}")
         paper_trading_logs[user_id] = logs[:100]
+
+def run_paper_trading_sync(user_id, model, threshold=0.73):
+    """Wrapper function to run async paper trading in background"""
+    try:
+        asyncio.run(paper_trading_loop(user_id, model, threshold))
+    except Exception as e:
+        logger.error(f"Error en paper trading para usuario {user_id}: {e}")
+        paper_trading_status[user_id] = "error"
 
 @app.post("/start-paper-trading")
 def start_paper_trading(background_tasks: BackgroundTasks, user=Depends(verify_firebase_token)):
@@ -306,7 +362,7 @@ def start_paper_trading(background_tasks: BackgroundTasks, user=Depends(verify_f
     paper_trading_status[user_id] = "activo"
     logger.info(f"Iniciando paper trading para usuario: {user_id}")
     # Usar BackgroundTasks para lanzar el ciclo de trading en segundo plano
-    background_tasks.add_task(asyncio.run, paper_trading_loop(user_id, model))
+    background_tasks.add_task(run_paper_trading_sync, user_id, model)
     return {"status": "iniciado"}
 
 @app.post("/stop-paper-trading")

@@ -53,23 +53,51 @@ main {
   margin-top: 0;
 }
 
-.form-group {
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.config-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 }
 
-.form-group label {
-  margin-right: 10px;
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.config-item label {
+  font-weight: bold;
+  color: #fff;
+}
+
+.config-item span {
+  color: #4CAF50;
   font-weight: bold;
 }
 
-.form-group input {
-  padding: 8px;
-  border: none;
+.logs {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.logs-container {
+  max-height: 300px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 15px;
   border-radius: 5px;
-  width: 120px;
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.log-item {
+  padding: 2px 0;
+  color: #fff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .buttons {
@@ -80,13 +108,74 @@ main {
   justify-content: center;
 }
 
-.start-btn, .stop-btn {
+.start-btn, .stop-btn, .login-btn, .logout-btn {
   padding: 15px 30px;
   font-size: 1.1rem;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+}
+
+.login-form {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 40px;
+  border-radius: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.google-signin-btn {
+  background-color: #fff;
+  color: #757575;
+  border: 1px solid #ddd;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.google-signin-btn:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.logout-btn {
+  background-color: #ff9800;
+  color: white;
+  margin-left: 20px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+}
+
+.logout-btn:hover {
+  background-color: #f57c00;
 }
 
 .start-btn {
