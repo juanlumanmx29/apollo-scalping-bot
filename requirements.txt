@@ -1,7 +1,0 @@
-# Apollo Scalping Bot - Minimal Root Requirements
-# This file prevents Railway auto-detection
-# Real dependencies are installed by install_deps.py
-
-# Basic dependencies only
-requests==2.31.0
-python-dotenv==1.0.0
