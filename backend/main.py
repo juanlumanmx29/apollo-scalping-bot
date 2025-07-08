@@ -44,7 +44,9 @@ async def startup_event():
 allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://your-frontend-domain.vercel.app"  # Replace with your actual Vercel domain
+    "https://apollo.irondevz.com",  # Production domain
+    "https://apollo-scalping-bot.netlify.app",  # Netlify fallback
+    "https://your-frontend-domain.vercel.app"  # Vercel fallback
 ]
 
 # Add production frontend domain if environment variable is set
@@ -170,14 +172,28 @@ def get_price(_=Depends(verify_firebase_token)):
         raise HTTPException(status_code=500, detail=f"Error al obtener el precio: {str(e)}")
 
 # Cargar el modelo ML al iniciar
-MODEL_PATH = os.path.join(os.path.dirname(__file__), '../models/ensemble_model.joblib')
-try:
-    model = joblib.load(MODEL_PATH)
-    logger.info("✅ Modelo ML cargado correctamente")
-except Exception as e:
-    logger.warning(f"⚠️  No se pudo cargar el modelo ML: {e}")
+# Try multiple possible paths for different deployment environments
+MODEL_PATHS = [
+    os.path.join(os.path.dirname(__file__), '../models/ensemble_model.joblib'),  # Local development
+    os.path.join(os.getcwd(), 'models/ensemble_model.joblib'),  # Render deployment
+    '/app/models/ensemble_model.joblib',  # Docker deployment
+    'models/ensemble_model.joblib'  # Direct path
+]
+
+model = None
+for MODEL_PATH in MODEL_PATHS:
+    try:
+        if os.path.exists(MODEL_PATH):
+            model = joblib.load(MODEL_PATH)
+            logger.info(f"✅ Modelo ML cargado correctamente desde: {MODEL_PATH}")
+            break
+    except Exception as e:
+        logger.debug(f"No se pudo cargar desde {MODEL_PATH}: {e}")
+        continue
+
+if model is None:
+    logger.warning("⚠️  No se pudo cargar el modelo ML desde ninguna ubicación")
     logger.info("🔄 Funcionando en modo sin modelo - usando probabilidades por defecto")
-    model = None
 
 # Función para predecir probabilidad (simulación de features)
 def predict_probability():
