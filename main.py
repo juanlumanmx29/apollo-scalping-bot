@@ -46,11 +46,20 @@ def start_server():
     os.chdir("backend")
     
     try:
-        from main import app
+        # Import the FastAPI app from backend
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("backend_main", "main.py")
+        backend_main = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(backend_main)
+        app = backend_main.app
+        
         import uvicorn
+        print(f"🔧 Starting uvicorn server...")
         uvicorn.run(app, host="0.0.0.0", port=int(port))
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
 
 if __name__ == "__main__":
