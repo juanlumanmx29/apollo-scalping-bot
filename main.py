@@ -46,12 +46,15 @@ def start_server():
     os.chdir("backend")
     
     try:
-        # Import the FastAPI app from backend
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("backend_main", "main.py")
-        backend_main = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(backend_main)
+        # Import the main module from current directory (backend)
+        import main as backend_main
         app = backend_main.app
+        
+        # Verify app has routes
+        print(f"📋 FastAPI app loaded with {len(app.routes)} routes")
+        for route in app.routes:
+            if hasattr(route, 'path'):
+                print(f"   Route: {route.path}")
         
         import uvicorn
         print(f"🔧 Starting uvicorn server...")
