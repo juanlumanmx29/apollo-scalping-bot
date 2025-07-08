@@ -8,14 +8,37 @@ def get_features_and_predict(model, symbol="ETHUSDT", threshold=0.73):
     Devuelve: current_price, features_array, proba
     """
     try:
-        url = "https://api.binance.com/api/v3/klines"
+        # Try multiple Binance endpoints in case of restrictions
+        urls = [
+            "https://api.binance.com/api/v3/klines",
+            "https://api1.binance.com/api/v3/klines",
+            "https://api2.binance.com/api/v3/klines",
+            "https://api3.binance.com/api/v3/klines"
+        ]
+        
         params = {
             "symbol": symbol,
             "interval": "1m",
             "limit": 100
         }
-        response = requests.get(url, params=params)
-        response.raise_for_status()
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        response = None
+        for url in urls:
+            try:
+                response = requests.get(url, params=params, headers=headers, timeout=10)
+                response.raise_for_status()
+                break
+            except Exception as e:
+                print(f"Failed to fetch from {url}: {e}")
+                continue
+        
+        if response is None:
+            raise Exception("All Binance endpoints failed")
+            
         data = response.json()
         df = pd.DataFrame(data, columns=[
             'timestamp', 'open', 'high', 'low', 'close', 'volume',

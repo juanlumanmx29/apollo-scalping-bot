@@ -148,6 +148,19 @@ def get_credentials(user=Depends(verify_firebase_token)):
 def test_cors():
     return {"message": "CORS funcionando correctamente"}
 
+@app.get("/test-binance")
+def test_binance():
+    """Test Binance connectivity from server"""
+    try:
+        import requests
+        response = requests.get("https://api.binance.com/api/v3/ping", timeout=10)
+        if response.status_code == 200:
+            return {"status": "Binance API accessible", "response": response.json()}
+        else:
+            return {"status": "Binance API failed", "status_code": response.status_code}
+    except Exception as e:
+        return {"status": "Binance API error", "error": str(e)}
+
 @app.get("/debug")
 def debug_endpoint(user=Depends(verify_firebase_token)):
     """Endpoint para debug - verifica que la autenticación funciona"""
@@ -161,12 +174,30 @@ def get_price(_=Depends(verify_firebase_token)):
     Devuelve el precio actual de ETH/USDT desde Binance.
     """
     try:
-        response = requests.get("https://api.binance.com/api/v3/ticker/price", params={"symbol": "ETHUSDT"})
-        response.raise_for_status()
-        data = response.json()
-        price = float(data["price"])
-        logger.info(f"Precio ETH/USDT obtenido: ${price:.2f}")
-        return {"symbol": data["symbol"], "price": price}
+        # Try multiple endpoints with better headers
+        urls = [
+            "https://api.binance.com/api/v3/ticker/price",
+            "https://api1.binance.com/api/v3/ticker/price",
+            "https://api2.binance.com/api/v3/ticker/price"
+        ]
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        
+        for url in urls:
+            try:
+                response = requests.get(url, params={"symbol": "ETHUSDT"}, headers=headers, timeout=10)
+                response.raise_for_status()
+                data = response.json()
+                price = float(data["price"])
+                logger.info(f"Precio ETH/USDT obtenido: ${price:.2f}")
+                return {"symbol": data["symbol"], "price": price}
+            except Exception as e:
+                logger.debug(f"Failed to get price from {url}: {e}")
+                continue
+        
+        raise Exception("All price endpoints failed")
     except Exception as e:
         logger.error(f"Error obteniendo precio: {e}")
         raise HTTPException(status_code=500, detail=f"Error al obtener el precio: {str(e)}")
