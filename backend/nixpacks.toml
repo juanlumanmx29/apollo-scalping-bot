@@ -9,3 +9,10 @@ cmds = ["echo 'Apollo Scalping Bot - Custom Python startup'"]
 
 [phases.build]
 cmds = ["pip install -r requirements.txt"]
+
+[phases.install]
+cmds = ["echo 'Custom install phase'"]
+
+# Disable auto-detection
+[providers]
+python = false

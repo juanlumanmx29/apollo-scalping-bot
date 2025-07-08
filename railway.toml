@@ -2,11 +2,12 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "cd backend && python run.py"
+startCommand = "python backend/run.py"
 
 [variables]
 NIXPACKS_PYTHON_VERSION = "3.11"
+NIXPACKS_NO_CACHE = "1"
 
 [[services]]
 name = "apollo-backend"
-source = "./backend"
+source = "./"

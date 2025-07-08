@@ -1,0 +1,18 @@
+[start]
+cmd = "python backend/run.py"
+
+[variables]
+NIXPACKS_PYTHON_VERSION = "3.11"
+
+[phases.setup]
+cmds = ["echo 'Apollo Scalping Bot - Root level deployment'"]
+
+[phases.build]
+cmds = ["pip install -r backend/requirements.txt"]
+
+[phases.install]
+cmds = ["echo 'Installing dependencies from backend/requirements.txt'"]
+
+# Override auto-detection
+[providers]
+python = true
