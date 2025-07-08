@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from fastapi import FastAPI, Depends, HTTPException, status, Request, BackgroundTasks
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -32,6 +34,11 @@ warnings.filterwarnings('ignore', message='.*pickle.*')
 load_dotenv()
 
 app = FastAPI(title="Apollo Scalping Bot API")
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
 
 @app.on_event("startup")
 async def startup_event():
