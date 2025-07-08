@@ -1,5 +1,5 @@
 [start]
-cmd = "python run.py"
+cmd = "python debug_server.py"
 
 [variables]
 NIXPACKS_PYTHON_VERSION = "3.11"
