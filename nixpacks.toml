@@ -1,0 +1,8 @@
+[start]
+cmd = "cd backend && python main.py"
+
+[variables]
+NIXPACKS_PYTHON_VERSION = "3.11"
+
+[phases.build]
+cmds = ["pip install -r backend/requirements.txt"]

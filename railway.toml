@@ -1,0 +1,9 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "cd backend && python main.py"
+
+[[services]]
+name = "apollo-backend"
+source = "./"
