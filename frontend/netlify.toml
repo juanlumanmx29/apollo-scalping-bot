@@ -12,7 +12,7 @@
   status = 200
 
 [context.production.environment]
-  VITE_BACKEND_URL = "https://apollo-scalping-bot-backend.onrender.com"
+  VITE_BACKEND_URL = "https://apollo-scalping-bot-production.up.railway.app"
 
 [context.deploy-preview.environment]
-  VITE_BACKEND_URL = "https://apollo-scalping-bot-backend.onrender.com"
+  VITE_BACKEND_URL = "https://apollo-scalping-bot-production.up.railway.app"
