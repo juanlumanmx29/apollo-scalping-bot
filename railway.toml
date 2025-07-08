@@ -2,8 +2,8 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "./start_backend.sh"
+startCommand = "python run.py"
 
 [[services]]
 name = "apollo-backend"
-source = "./"
+source = "./backend"
