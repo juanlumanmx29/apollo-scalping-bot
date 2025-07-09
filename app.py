@@ -136,23 +136,55 @@ def test_cors():
 @app.get("/debug-binance")
 def debug_binance():
     """Debug endpoint to test Binance API from Railway"""
+    import socket
+    import urllib.parse
+    
+    results = {
+        "timestamp": datetime.now().isoformat(),
+        "network_tests": {},
+        "api_tests": {},
+        "error_details": []
+    }
+    
+    # Test 1: DNS Resolution
     try:
-        # Test simple price first
+        ip = socket.gethostbyname("api.binance.com")
+        results["network_tests"]["dns_resolution"] = f"✅ api.binance.com -> {ip}"
+    except Exception as e:
+        results["network_tests"]["dns_resolution"] = f"❌ DNS failed: {e}"
+    
+    # Test 2: Basic connectivity
+    try:
+        response = requests.get("https://httpbin.org/ip", timeout=5)
+        results["network_tests"]["external_access"] = f"✅ External access: {response.json()}"
+    except Exception as e:
+        results["network_tests"]["external_access"] = f"❌ External access failed: {e}"
+    
+    # Test 3: Binance API endpoints
+    binance_urls = [
+        "https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT",
+        "https://api1.binance.com/api/v3/ticker/price?symbol=ETHUSDT",
+        "https://api.binance.com/api/v3/ping"
+    ]
+    
+    for url in binance_urls:
+        try:
+            response = requests.get(url, timeout=10)
+            results["api_tests"][url] = f"✅ {response.status_code}: {response.text[:100]}"
+        except Exception as e:
+            results["api_tests"][url] = f"❌ {type(e).__name__}: {str(e)}"
+    
+    # Test 4: Our functions
+    try:
         price_result = get_current_price_simple("ETHUSDT")
-        
-        # Test full features
-        current_price, features, proba = get_features_and_predict(model)
-        
-        return {
+        results["our_functions"] = {
             "simple_price": price_result,
-            "features_price": current_price,
-            "features_available": features is not None,
-            "probability": proba,
-            "model_loaded": model is not None,
-            "timestamp": datetime.now().isoformat()
+            "price_success": price_result is not None
         }
     except Exception as e:
-        return {"error": str(e), "timestamp": datetime.now().isoformat()}
+        results["our_functions"] = {"error": str(e)}
+    
+    return results
 
 # Utility functions
 def get_firestore_client():
