@@ -5,4 +5,4 @@ cmd = "python app.py"
 NIXPACKS_PYTHON_VERSION = "3.11"
 
 [phases.build]
-cmds = ["pip install fastapi uvicorn"]
+cmds = ["pip install -r requirements_minimal.txt"]
