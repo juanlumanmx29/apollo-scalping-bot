@@ -123,7 +123,7 @@ def verify_firebase_token(credentials: HTTPAuthorizationCredentials = Depends(se
 # Basic endpoints
 @app.get("/")
 def root():
-    return {"message": "Apollo Scalping Bot API funcionando 🚀", "status": "healthy"}
+    return {"message": "Apollo Scalping Bot API funcionando 🚀", "status": "healthy", "version": "v2.0-debug", "timestamp": datetime.now().isoformat()}
 
 @app.get("/health") 
 def health():
