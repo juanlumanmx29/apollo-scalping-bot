@@ -397,6 +397,7 @@ async def startup_event():
     logger.info("🚀 Apollo Scalping Bot API started")
     logger.info(f"📊 ML Model available: {'Yes' if model else 'No'}")
     logger.info(f"🔥 Firebase Project ID: {FIREBASE_PROJECT_ID}")
+    logger.info("💹 REAL BINANCE DATA MODE - NO SIMULATION")
     logger.info("="*50)
 
 if __name__ == "__main__":
