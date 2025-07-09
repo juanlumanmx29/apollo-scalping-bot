@@ -20,7 +20,7 @@ import jwt
 from google.cloud import firestore
 from cryptography.fernet import Fernet
 import requests
-from features import get_features_and_predict
+from features import get_features_and_predict, get_current_price_simple
 import uvicorn
 
 # Load environment variables
@@ -132,6 +132,27 @@ def health():
 @app.get("/test-cors")
 def test_cors():
     return {"message": "CORS funcionando correctamente"}
+
+@app.get("/debug-binance")
+def debug_binance():
+    """Debug endpoint to test Binance API from Railway"""
+    try:
+        # Test simple price first
+        price_result = get_current_price_simple("ETHUSDT")
+        
+        # Test full features
+        current_price, features, proba = get_features_and_predict(model)
+        
+        return {
+            "simple_price": price_result,
+            "features_price": current_price,
+            "features_available": features is not None,
+            "probability": proba,
+            "model_loaded": model is not None,
+            "timestamp": datetime.now().isoformat()
+        }
+    except Exception as e:
+        return {"error": str(e), "timestamp": datetime.now().isoformat()}
 
 # Utility functions
 def get_firestore_client():
