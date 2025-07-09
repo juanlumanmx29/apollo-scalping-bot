@@ -24,15 +24,15 @@ def main():
         logger.info(f"📍 Environment: {'Production' if os.environ.get('RAILWAY_ENVIRONMENT') else 'Development'}")
         
         # Import and run the FastAPI app
-        from main import app
         import uvicorn
         
         logger.info("🔧 Starting uvicorn server...")
         uvicorn.run(
-            app, 
+            "main:app", 
             host="0.0.0.0", 
             port=port,
-            log_level="info"
+            log_level="info",
+            reload=False
         )
         
     except Exception as e:

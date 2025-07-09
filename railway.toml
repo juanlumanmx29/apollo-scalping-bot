@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "cd backend && python debug_server.py"
+startCommand = "cd backend && python main.py"
 
 [[services]]
 name = "apollo-backend"
