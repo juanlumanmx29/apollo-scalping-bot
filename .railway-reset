@@ -1,8 +1,0 @@
-RAILWAY_RESET_DEPLOYMENT=true
-FORCE_REBUILD=true
-TIMESTAMP=$(date)
-
-This file forces Railway to rebuild the deployment from scratch.
-Delete any cached deployment configurations and use the current repository state.
-
-Deploy using: python main.py

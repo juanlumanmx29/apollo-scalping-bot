@@ -1,0 +1,11 @@
+{
+  "balance_usdt": 5000.0,
+  "balance_eth": 0.0,
+  "total_trades": 0,
+  "winning_trades": 0,
+  "losing_trades": 0,
+  "total_pnl": 0.0,
+  "total_fees": 0.0,
+  "trades": [],
+  "last_updated": "2025-08-15T20:40:23.644953"
+}
